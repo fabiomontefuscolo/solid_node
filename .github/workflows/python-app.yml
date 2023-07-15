@@ -6,6 +6,42 @@ permissions:
   contents: read
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+          cache: "pip"
+
+      - name: List changed python files
+        id: list_changed_python_files
+        run: |
+          files=$(git diff --name-only --diff-filter=AM origin/main | grep '.py$')
+          if [ -n "${files}" ];
+            then echo "files=${files}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install requirements
+        if: steps.list_changed_python_files.outputs.files != null
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements_dev.txt
+
+      - name: Black
+        if: steps.list_changed_python_files.outputs.files != null
+        run: |
+          black --check steps.list_changed_python_files.outputs.files != null
+
+      - name: Flake8
+        if: steps.list_changed_python_files.outputs.files != null
+        run: |
+          flake8 steps.list_changed_python_files.outputs.files != null
+
   test:
     runs-on: ubuntu-latest
 

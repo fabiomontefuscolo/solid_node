@@ -36,12 +36,12 @@ jobs:
       - name: Black
         if: steps.list_changed_python_files.outputs.files != null
         run: |
-          black --check steps.list_changed_python_files.outputs.files != null
+          black --check ${{ steps.list_changed_python_files.outputs.files }}
 
       - name: Flake8
         if: steps.list_changed_python_files.outputs.files != null
         run: |
-          flake8 steps.list_changed_python_files.outputs.files != null
+          flake8 ${{ steps.list_changed_python_files.outputs.files }}
 
   test:
     runs-on: ubuntu-latest

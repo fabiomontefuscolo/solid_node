@@ -76,7 +76,7 @@ jobs:
     needs: test
 
     env:
-      SOLID_NODE_VERSION: "${{ github.ref }}"
+      SOLID_NODE_VERSION: "${{ github.ref_name }}"
 
     steps:
       - uses: actions/checkout@v3

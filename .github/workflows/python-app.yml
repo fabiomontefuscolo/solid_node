@@ -101,7 +101,7 @@ jobs:
         run: |
           from setuptools.extern.packaging import version
           try:
-            solid_node_version = str(version.parse("$GITHUB_OUTPUT"))
+            solid_node_version = str(version.parse("$SOLID_NODE_VERSION"))
             print(f"version={solid_node_version}", file=open("$GITHUB_OUTPUT", "a"), flush=True)
           except Exception as e:
             pass

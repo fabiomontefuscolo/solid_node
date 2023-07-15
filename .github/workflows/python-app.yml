@@ -22,9 +22,7 @@ jobs:
         id: list_changed_python_files
         run: |
           git fetch --no-tags --prune --progress --no-recurse-submodules --depth=1 origin main
-          echo "main was fetched"
-          files="$(git diff --name-only --diff-filter=AM origin/main | grep '.py$')"
-          echo "files filtered"
+          files="$(git diff --name-only --diff-filter=AM origin/main | grep '.py$' | tr '\n' ' ')"
           if [ -n "${files}" ]; then
             echo "files=${files}" | tee >> "$GITHUB_OUTPUT"
           fi

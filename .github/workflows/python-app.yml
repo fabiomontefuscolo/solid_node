@@ -12,12 +12,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.10"
-          cache: "pip"
-
       - name: List changed python files
         id: list_changed_python_files
         run: |
@@ -27,20 +21,37 @@ jobs:
             echo "files=${files}" | tee >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        id: setup-python
+        with:
+          python-version: "3.10"
+          cache: "pip"
+
+      - uses: actions/cache@v3
+        id: cache-primes
+        with:
+          path: venv
+          key: venv-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('requirements*.txt') }}
+
       - name: Install requirements
-        if: steps.list_changed_python_files.outputs.files != null
+        if: steps.cache-primes.outputs.cache-hit != 'true'
         run: |
+          python -m venv venv
+          . venv/bin/activate
           python -m pip install --upgrade pip
-          pip install -r requirements_dev.txt
+          pip install -r requirements.txt -r requirements_dev.txt
 
       - name: Black
         if: steps.list_changed_python_files.outputs.files != null
         run: |
+          . venv/bin/activate
           black --check ${{ steps.list_changed_python_files.outputs.files }}
 
       - name: Flake8
         if: steps.list_changed_python_files.outputs.files != null
         run: |
+          . venv/bin/activate
           flake8 --max-line-length=89  ${{ steps.list_changed_python_files.outputs.files }}
 
   test:
@@ -57,17 +68,28 @@ jobs:
 
       - name: Setup Python
         uses: actions/setup-python@v4
+        id: setup-python
         with:
           python-version: "3.10"
           cache: "pip"
 
+      - uses: actions/cache@v3
+        id: cache-primes
+        with:
+          path: venv
+          key: venv-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('requirements*.txt') }}
+
       - name: Install requirements
+        if: steps.cache-primes.outputs.cache-hit != 'true'
         run: |
+          python -m venv venv
+          . venv/bin/activate
           python -m pip install --upgrade pip
           pip install -r requirements.txt -r requirements_dev.txt
 
       - name: Run tests
         run: |
+          . venv/bin/activate
           coverage run --source solid_node -m pytest
           coverage report -m
 
@@ -83,17 +105,28 @@ jobs:
 
       - name: Setup Python
         uses: actions/setup-python@v4
+        id: setup-python
         with:
           python-version: "3.10"
           cache: "pip"
 
+      - uses: actions/cache@v3
+        id: cache-primes
+        with:
+          path: venv
+          key: venv-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('requirements*.txt') }}
+
       - name: Install requirements
+        if: steps.cache-primes.outputs.cache-hit != 'true'
         run: |
+          python -m venv venv
+          . venv/bin/activate
           python -m pip install --upgrade pip
           pip install -r requirements.txt -r requirements_dev.txt
 
       - name: Build python package
         run: |
+          . venv/bin/activate
           make dist
 
       - name: Detect package version
